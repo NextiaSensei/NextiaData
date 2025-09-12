@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextiaData: Jupyter Lab para Marketing y Ciencia de Datos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #4cc9f0;
+            --dark: #1a1a2e;
+            --light: #f8f9fa;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+            color: #e6e6e6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+        
+        header {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #0f3460;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+        
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+        
+        .subtitle {
+            color: #a0a0b8;
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2d3749;
+        }
+        
+        .chat-list {
+            list-style: none;
+            flex: 1;
+        }
+        
+        .chat-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chat-item:hover {
+            background: rgba(15, 52, 96, 0.5);
+            transform: translateX(5px);
+        }
+        
+        .chat-item.active {
+            background: rgba(67, 97, 238, 0.3);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .chat-item i {
+            color: var(--secondary);
+        }
+        
+        .data-upload {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 8px;
+        }
+        
+        .data-upload h3 {
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+        
+        .upload-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background: #3a56d4;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .chat-header {
+            padding: 20px;
+            background: rgba(15, 52, 96, 0.3);
+            border-bottom: 1px solid #2d3749;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .chat-header-info h2 {
+            font-size: 1.4rem;
+            color: #f8f9fa;
+        }
+        
+        .chat-header-info p {
+            color: #a0a0b8;
+            font-size: 0.9rem;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .message {
+            max-width: 75%;
+            padding: 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            position: relative;
+        }
+        
+        .message.bot {
+            background: rgba(15, 52, 96, 0.4);
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+        
+        .message.user {
+            background: rgba(67, 97, 238, 0.3);
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+        
+        .message-time {
+            font-size: 0.7rem;
+            color: #a0a0b8;
+            margin-top: 8px;
+            text-align: right;
+        }
+        
+        .chat-input {
+            padding: 20px;
+            background: rgba(15, 52, 96, 0.3);
+            border-top: 1px solid #2d3749;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(26, 26, 46, 0.8);
+            color: #e6e6e6;
+            font-size: 1rem;
+        }
+        
+        .chat-input input:focus {
+            outline: 2px solid var(--primary);
+        }
+        
+        .chat-input button {
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+        
+        .tools {
+            width: 280px;
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .tools-title {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2d3749;
+        }
+        
+        .tool-card {
+            background: rgba(15, 52, 96, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .tool-card:hover {
+            background: rgba(15, 52, 96, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .tool-card h3 {
+            color: #f8f9fa;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tool-card p {
+            color: #a0a0b8;
+            font-size: 0.9rem;
+        }
+        
+        .visualization-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .visualization-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: #a0a0b8;
+        }
+        
+        .data-preview {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #2d3749;
+        }
+        
+        .data-table th {
+            background: rgba(15, 52, 96, 0.4);
+            color: var(--secondary);
+        }
+        
+        .data-table tr:hover {
+            background: rgba(15, 52, 96, 0.2);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #a0a0b8;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+        
+        @media (max-width: 992px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar, .tools {
+                width: 100%;
+            }
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 12px;
+            margin: 10px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .keyword {
+            color: var(--secondary);
+        }
+        
+        .comment {
+            color: #6c757d;
+        }
+        
+        .string {
+            color: #90ee90;
+        }
+        
+        .guide {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .guide h3 {
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .guide ol {
+            margin-left: 20px;
+        }
+        
+        .guide li {
+            margin-bottom: 8px;
+        }
+        
+        .guide code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .analysis-result {
+            background: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        
+        .plot-image {
+            max-width: 100%;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-brain logo-icon"></i>
+            <h1>NextiaData: Asistente Virtual de IA para Ciencia de Datos</h1>
+        </div>
+        <p class="subtitle">Herramienta avanzada de análisis y visualización de datos con inteligencia artificial integrada</p>
+    </header>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h2 class="sidebar-title"><i class="fas fa-comments"></i> Canales de Chat</h2>
+            <ul class="chat-list">
+                <li class="chat-item active"><i class="fas fa-hashtag"></i> general</li>
+                <li class="chat-item"><i class="fas fa-hashtag"></i> análisis-datos</li>
+                <li class="chat-item"><i class="fas fa-hashtag"></i> visualización</li>
+                <li class="chat-item"><i class="fas fa-hashtag"></i> machine-learning</li>
+                <li class="chat-item"><i class="fas fa-hashtag"></i> reportes</li>
+                <li class="chat-item"><i class="fas fa-hashtag"></i> soporte-técnico</li>
+            </ul>
+            
+            <div class="data-upload">
+                <h3><i class="fas fa-upload"></i> Cargar Datos</h3>
+                <label for="file-input" class="upload-btn">
+                    <i class="fas fa-file-csv"></i> Seleccionar archivo CSV
+                </label>
+                <input type="file" id="file-input" accept=".csv">
+                <div id="file-name" style="margin-top: 10px; font-size: 0.8rem; color: #a0a0b8;"></div>
+            </div>
+            
+            <div class="guide">
+                <h3>Guía Rápida</h3>
+                <ol>
+                    <li>Carga un dataset CSV</li>
+                    <li>Selecciona una herramienta de análisis</li>
+                    <li>Chatea con el asistente de IA</li>
+                    <li>Genera visualizaciones</li>
+                    <li>Exporta tus resultados</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="chat-header">
+                <div class="chat-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="chat-header-info">
+                    <h2>Asistente de IA Nextia</h2>
+                    <p>Especializado en ciencia de datos y análisis de marketing</p>
+                </div>
+            </div>
+            
+            <div class="chat-messages">
+                <div class="message bot">
+                    <p>¡Hola! Soy Nextia, tu asistente virtual de IA para ciencia de datos. ¿En qué puedo ayudarte hoy?</p>
+                    <div class="message-time">10:00 AM</div>
+                </div>
+                
+                <div class="message bot">
+                    <p>Puedo ayudarte a:</p>
+                    <ul>
+                        <li>Analizar tus datasets</li>
+                        <li>Crear visualizaciones</li>
+                        <li>Generar modelos predictivos</li>
+                        <li>Optimizar campañas de marketing</li>
+                    </ul>
+                    <div class="message-time">10:00 AM</div>
+                </div>
+                
+                <div class="message user">
+                    <p>Hola Nextia, me gustaría analizar un dataset de ventas.</p>
+                    <div class="message-time">10:02 AM</div>
+                </div>
+                
+                <div class="message bot">
+                    <p>¡Excelente! Primero, por favor carga tu archivo CSV usando el panel izquierdo. Luego podré analizarlo y generar insights valiosos para ti.</p>
+                    <div class="message-time">10:03 AM</div>
+                </div>
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Escribe tu mensaje o pregunta aquí...">
+                <button id="send-btn">Enviar <i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+        
+        <div class="tools">
+            <h2 class="tools-title"><i class="fas fa-tools"></i> Herramientas de Análisis</h2>
+            
+            <div class="tool-card" onclick="analyzeData()">
+                <h3><i class="fas fa-chart-bar"></i> Análisis Exploratorio</h3>
+                <p>Examina estadísticas básicas y distribuciones de tus datos</p>
+            </div>
+            
+            <div class="tool-card" onclick="visualizeData('line')">
+                <h3><i class="fas fa-chart-line"></i> Gráfico de Líneas</h3>
+                <p>Visualiza tendencias y cambios a lo largo del tiempo</p>
+            </div>
+            
+            <div class="tool-card" onclick="visualizeData('bar')">
+                <h3><i class="fas fa-chart-bar"></i> Gráfico de Barras</h3>
+                <p>Compara categorías y frecuencias entre grupos</p>
+            </div>
+            
+            <div class="tool-card" onclick="visualizeData('histogram')">
+                <h3><i class="fas fa-chart-area"></i> Histograma</h3>
+                <p>Analiza la distribución de variables numéricas</p>
+            </div>
+            
+            <div class="tool-card" onclick="generateReport()">
+                <h3><i class="fas fa-file-pdf"></i> Generar Reporte</h3>
+                <p>Crea un reporte PDF con tus análisis and visualizaciones</p>
+            </div>
+            
+            <div class="visualization-container">
+                <h3><i class="fas fa-image"></i> Visualización</h3>
+                <div class="visualization-placeholder" id="visualization-placeholder">
+                    <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>Selecciona una herramienta de visualización</p>
+                </div>
+                <canvas id="plot-canvas" style="display: none; width: 100%; height: 200px;"></canvas>
+                <img id="plot-image" class="plot-image" style="display: none;">
+            </div>
+            
+            <div class="data-preview">
+                <h3><i class="fas fa-table"></i> Vista Previa de Datos</h3>
+                <div id="data-preview-content">
+                    <p style="text-align: center; color: #a0a0b8; padding: 20px;">
+                        Carga un archivo CSV para previsualizar los datos
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>NextiaData AI Assistant &copy; 2023 - Desarrollado por JorgeSensei</p>
+    </footer>
+
+    <script>
+        // Variables globales
+        let currentDataset = null;
+        const GEMINI_API_KEY = "AIzaSyArn3TOT6P29eelnRo2TVYCB4bnAhtdISE";
+        const FLASK_BACKEND = "http://127.0.0.1:5000";
+        
+        // Elementos DOM
+        const fileInput = document.getElementById('file-input');
+        const fileName = document.getElementById('file-name');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatMessages = document.querySelector('.chat-messages');
+        const dataPreview = document.getElementById('data-preview-content');
+        const visualizationPlaceholder = document.getElementById('visualization-placeholder');
+        const plotCanvas = document.getElementById('plot-canvas');
+        const plotImage = document.getElementById('plot-image');
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listeners
+            fileInput.addEventListener('change', handleFileUpload);
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Configurar herramientas
+            setupToolCards();
+        });
+
+        // Manejar carga de archivos
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                fileName.textContent = `Archivo: ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const csvData = e.target.result;
+                        parseCSV(csvData);
+                    } catch (error) {
+                        addMessage('bot', `❌ Error al procesar el archivo: ${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Parsear CSV
+        function parseCSV(csvData) {
+            const lines = csvData.split('\n');
+            const headers = lines[0].split(',').map(h => h.trim());
+            const rows = [];
+            
+            for (let i = 1; i < Math.min(lines.length, 11); i++) {
+                if (lines[i].trim()) {
+                    const values = lines[i].split(',').map(v => v.trim());
+                    rows.push(values);
+                }
+            }
+            
+            currentDataset = { headers, rows };
+            showDataPreview();
+            addMessage('bot', '✅ Archivo CSV cargado exitosamente. Ahora puedes analizarlo usando las herramientas del panel derecho.');
+        }
+
+        // Mostrar vista previa de datos
+        function showDataPreview() {
+            if (!currentDataset) return;
+            
+            let tableHTML = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            ${currentDataset.headers.map(header => `<th>${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            currentDataset.rows.forEach(row => {
+                tableHTML += `
+                    <tr>
+                        ${row.map(cell => `<td>${cell}</td>`).join('')}
+                    </tr>
+                `;
+            });
+            
+            tableHTML += '</tbody></table>';
+            dataPreview.innerHTML = tableHTML;
+        }
+
+        // Configurar tarjetas de herramientas
+        function setupToolCards() {
+            const toolCards = document.querySelectorAll('.tool-card');
+            toolCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    toolCards.forEach(c => c.style.border = 'none');
+                    this.style.border = '2px solid #4361ee';
+                });
+            });
+        }
+
+        // Enviar mensaje
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                userInput.value = '';
+                
+                // Mostrar indicador de typing
+                const typingIndicator = addTypingIndicator();
+                
+                // Enviar a backend Flask con Gemini
+                sendToGemini(message, typingIndicator);
+            }
+        }
+
+        // Añadir mensaje al chat
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const time = new Date().toLocaleTimeString([], { 
+                hour: '2-digit', minute: '2-digit' 
+            });
+            
+            messageDiv.innerHTML = `
+                <p>${text}</p>
+                <div class="message-time">${time}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageDiv;
+        }
+
+        // Añadir indicador de typing
+        function addTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'message bot';
+            indicator.id = 'typing-indicator';
+            indicator.innerHTML = `
+                <p><i class="fas fa-ellipsis-h"></i> Nextia está pensando...</p>
+                <div class="message-time">${new Date().toLocaleTimeString([], { 
+                    hour: '2-digit', minute: '2-digit' 
+                })}</div>
+            `;
+            
+            chatMessages.appendChild(indicator);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return indicator;
+        }
+
+        // Enviar mensaje a Gemini via Flask
+        async function sendToGemini(message, typingIndicator) {
+            try {
+                const response = await fetch(`${FLASK_BACKEND}/ai/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        dataset_info: currentDataset ? 
+                            `Dataset cargado: ${currentDataset.headers.join(', ')} con ${currentDataset.rows.length} filas` : 
+                            'Sin dataset cargado'
+                    })
+                });
+
+                const data = await response.json();
+                
+                // Remover indicador de typing
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                if (data.success) {
+                    addMessage('bot', data.response);
+                } else {
+                    addMessage('bot', `❌ Error: ${data.error}`);
+                }
+            } catch (error) {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                addMessage('bot', '❌ Error de conexión con el servidor. Asegúrate de que Flask esté ejecutándose.');
+                console.error('Error:', error);
+            }
+        }
+
+        // Análisis de datos
+        async function analyzeData() {
+            if (!currentDataset) {
+                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
+                return;
+            }
+
+            const typingIndicator = addTypingIndicator();
+            
+            try {
+                const response = await fetch(`${FLASK_BACKEND}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dataset: {
+                            headers: currentDataset.headers,
+                            rows: currentDataset.rows
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                if (data.success) {
+                    const analysis = data.analysis;
+                    let analysisText = `📊 **Análisis Exploratorio del Dataset**\n\n`;
+                    analysisText += `• **Filas:** ${analysis.rows}\n`;
+                    analysisText += `• **Columnas:** ${analysis.columns}\n`;
+                    analysisText += `• **Nombres de columnas:** ${analysis.column_names.join(', ')}\n\n`;
+                    
+                    addMessage('bot', analysisText);
+                } else {
+                    addMessage('bot', `❌ Error en análisis: ${data.error}`);
+                }
+            } catch (error) {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                addMessage('bot', '❌ Error de conexión durante el análisis.');
+            }
+        }
+
+        // Visualización de datos - VERSIÓN CORREGIDA
+async function visualizeData(chartType) {
+    if (!currentDataset) {
+        addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
+        return;
+    }
+
+    const typingIndicator = addTypingIndicator();
+
+    try {
+        const response = await fetch(`${FLASK_BACKEND}/visualize`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                dataset: {
+                    headers: currentDataset.headers,
+                    rows: currentDataset.rows
+                },
+                chart_type: chartType,
+                x_column: 0,
+                y_column: 1
+            })
+        });
+
+        const data = await response.json();
+
+        // Remover indicador de typing
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+
+        if (data.success) {
+            // Mostrar imagen CORRECTAMENTE
+            plotImage.src = `data:image/png;base64,${data.image}`;
+            plotImage.style.display = 'block';
+            plotCanvas.style.display = 'none';
+            visualizationPlaceholder.style.display = 'none';
+            
+            addMessage('bot', '✅ Visualización generada exitosamente. Revisa el panel de herramientas.');
+        } else {
+            addMessage('bot', `❌ Error en visualización: ${data.error}`);
+        }
+    } catch (error) {
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+        addMessage('bot', '❌ Error de conexión durante la visualización.');
+        console.error('Error de visualización:', error);
+    }
+}
+    
+      
+
+        // Generar reporte
+        async function generateReport() {
+            if (!currentDataset) {
+                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
+                return;
+            }
+
+            const typingIndicator = addTypingIndicator();
+            
+            try {
+                const response = await fetch(`${FLASK_BACKEND}/export`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dataset: {
+                            headers: currentDataset.headers,
+                            rows: currentDataset.rows
+                        }
+                    })
+                });
+
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'nextia_analysis_report.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    addMessage('bot', '✅ Reporte generado y descargado exitosamente.');
+                } else {
+                    addMessage('bot', '❌ Error al generar el reporte.');
+                }
+            } catch (error) {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                addMessage('bot', '❌ Error de conexión al generar reporte.');
+            }
+        }
+
+        // Funciones de utilidad para las herramientas
+        window.analyzeData = analyzeData;
+        window.visualizeData = visualizeData;
+        window.generateReport = generateReport;
+    </script>
+</body>
+</html>
