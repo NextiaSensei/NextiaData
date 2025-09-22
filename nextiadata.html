@@ -818,60 +818,56 @@
             }
         }
 
-        // Visualización de datos - VERSIÓN CORREGIDA
-async function visualizeData(chartType) {
-    if (!currentDataset) {
-        addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
-        return;
-    }
+        // Visualización de datos
+        async function visualizeData(chartType) {
+            if (!currentDataset) {
+                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
+                return;
+            }
 
-    const typingIndicator = addTypingIndicator();
-
-    try {
-        const response = await fetch(`${FLASK_BACKEND}/visualize`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                dataset: {
-                    headers: currentDataset.headers,
-                    rows: currentDataset.rows
-                },
-                chart_type: chartType,
-                x_column: 0,
-                y_column: 1
-            })
-        });
-
-        const data = await response.json();
-
-        // Remover indicador de typing
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-
-        if (data.success) {
-            // Mostrar imagen CORRECTAMENTE
-            plotImage.src = `data:image/png;base64,${data.image}`;
-            plotImage.style.display = 'block';
-            plotCanvas.style.display = 'none';
-            visualizationPlaceholder.style.display = 'none';
+            const typingIndicator = addTypingIndicator();
             
-            addMessage('bot', '✅ Visualización generada exitosamente. Revisa el panel de herramientas.');
-        } else {
-            addMessage('bot', `❌ Error en visualización: ${data.error}`);
+            try {
+                const response = await fetch(`${FLASK_BACKEND}/visualize`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dataset: {
+                            headers: currentDataset.headers,
+                            rows: currentDataset.rows
+                        },
+                        chart_type: chartType,
+                        x_column: 0,
+                        y_column: 1
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                
+                if (data.success) {
+                    // Mostrar imagen
+                    plotImage.src = `data:image/png;base64,${data.image}`;
+                    plotImage.style.display = 'block';
+                    plotCanvas.style.display = 'none';
+                    visualizationPlaceholder.style.display = 'none';
+                    
+                    addMessage('bot', '✅ Visualización generada exitosamente. Revisa el panel de herramientas.');
+                } else {
+                    addMessage('bot', `❌ Error en visualización: ${data.error}`);
+                }
+            } catch (error) {
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+                addMessage('bot', '❌ Error de conexión durante la visualización.');
+            }
         }
-    } catch (error) {
-        if (typingIndicator) {
-            typingIndicator.remove();
-        }
-        addMessage('bot', '❌ Error de conexión durante la visualización.');
-        console.error('Error de visualización:', error);
-    }
-}
-    
-      
 
         // Generar reporte
         async function generateReport() {
