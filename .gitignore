@@ -27,3 +27,6 @@ config.py
 
 # Logs
 *.log
+.env
+*.bak
+example

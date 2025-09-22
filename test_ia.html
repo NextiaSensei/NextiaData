@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test IA Nextia</title>
+</head>
+<body>
+    <h1>Test de Conexión con IA</h1>
+    <input type="text" id="pregunta" placeholder="Escribe tu pregunta">
+    <button onclick="preguntarIA()">Preguntar a IA</button>
+    <div id="respuesta"></div>
+
+    <script>
+        async function preguntarIA() {
+            const pregunta = document.getElementById('pregunta').value;
+            const respuestaDiv = document.getElementById('respuesta');
+            
+            respuestaDiv.innerHTML = "Consultando a IA...";
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5000/ai/ask', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        message: pregunta,
+                        dataset_info: "Test de conexión"
+                    })
+                });
+                
+                const data = await response.json();
+                respuestaDiv.innerHTML = data.success ? data.response : "Error: " + data.error;
+            } catch (error) {
+                respuestaDiv.innerHTML = "Error de conexión: " + error;
+            }
+        }
+    </script>
+</body>
+</html>
