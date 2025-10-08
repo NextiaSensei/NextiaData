@@ -67,6 +67,7 @@ NextiaData/
 ├── uploads/             # Carpeta para archivos subidos
 ├── static/              # Recursos estáticos (opcional)
 └── README.md           # Este archivo
+
 🤝 Contribución
 ¡Contribuciones son bienvenidas! Por favor:
 
