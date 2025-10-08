@@ -19,7 +19,7 @@
 
 ```bash
 # Clonar repositorio
-git clone https://github.com/JorgeSensei/NextiaData.git
+git clone https://github.com/NextiaSensei/NextiaData.git
 cd NextiaData
 
 # Crear entorno virtual
@@ -42,8 +42,8 @@ Obtén tu API key de Google AI Studio
 
 Configura en .env:
 GEMINI_API_KEY=tu_api_key_aqui
-NEXTIA_HOST=127.0.0.1
-NEXTIA_PORT=5000
+NEXTIA_HOST=
+NEXTIA_PORT=
 NEXTIA_DEBUG=True
 
 📊 Uso
