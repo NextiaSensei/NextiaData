@@ -3,472 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NextiaData: Jupyter Lab para Marketing y Ciencia de Datos</title>
+    <title>NextiaData - Asistente Virtual de IA para Ciencia de Datos</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #4cc9f0;
-            --dark: #1a1a2e;
-            --light: #f8f9fa;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
-            background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
-            color: #e6e6e6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        
+
         .container {
             display: flex;
-            flex: 1;
+            width: 100%;
             max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            gap: 20px;
+            height: 90vh;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
         }
-        
-        header {
-            background: rgba(26, 26, 46, 0.8);
-            padding: 20px;
-            text-align: center;
-            border-bottom: 2px solid #0f3460;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .logo h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(90deg, var(--secondary), var(--primary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 700;
-        }
-        
-        .logo-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-        
-        .subtitle {
-            color: #a0a0b8;
-            font-size: 1.1rem;
-            margin-top: 8px;
-        }
-        
+
+        /* Panel Lateral */
         .sidebar {
-            width: 280px;
-            background: rgba(26, 26, 46, 0.6);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 300px;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 25px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
         }
-        
-        .sidebar-title {
-            font-size: 1.2rem;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #2d3749;
-        }
-        
-        .chat-list {
-            list-style: none;
-            flex: 1;
-        }
-        
-        .chat-item {
-            padding: 12px 15px;
-            margin-bottom: 10px;
-            background: rgba(15, 52, 96, 0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .chat-item:hover {
-            background: rgba(15, 52, 96, 0.5);
-            transform: translateX(5px);
-        }
-        
-        .chat-item.active {
-            background: rgba(67, 97, 238, 0.3);
-            border-left: 4px solid var(--primary);
-        }
-        
-        .chat-item i {
-            color: var(--secondary);
-        }
-        
-        .data-upload {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(15, 52, 96, 0.3);
-            border-radius: 8px;
-        }
-        
-        .data-upload h3 {
-            margin-bottom: 10px;
-            color: var(--secondary);
-        }
-        
-        .upload-btn {
-            display: inline-block;
-            padding: 10px 15px;
-            background: var(--primary);
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
+
+        .logo {
             text-align: center;
-            transition: background 0.3s;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        .upload-btn:hover {
-            background: #3a56d4;
+
+        .logo h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
+        .logo p {
+            font-size: 14px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .channels {
+            margin-bottom: 30px;
+        }
+
+        .channels h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: var(--light-color);
+        }
+
+        .channel-list {
+            list-style: none;
+        }
+
+        .channel-list li {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .channel-list li:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .channel-list li.active {
+            background: var(--primary-color);
+        }
+
+        .upload-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .upload-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary-color);
+        }
+
+        .upload-area i {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
         #file-input {
             display: none;
         }
-        
+
+        #file-info {
+            font-size: 12px;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .quick-guide {
+            margin-top: auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .quick-guide h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .quick-guide ol {
+            padding-left: 20px;
+            font-size: 13px;
+        }
+
+        .quick-guide li {
+            margin-bottom: 8px;
+        }
+
+        /* Contenido Principal */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: rgba(26, 26, 46, 0.6);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            background: var(--light-color);
         }
-        
-        .chat-header {
-            padding: 20px;
-            background: rgba(15, 52, 96, 0.3);
-            border-bottom: 1px solid #2d3749;
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .header h2 {
+            color: white;
+            margin-bottom: 5px;
+            font-size: 24px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 300;
+        }
+
+        .content-area {
+            flex: 1;
             display: flex;
-            align-items: center;
-            gap: 15px;
+            overflow: hidden;
         }
-        
-        .chat-avatar {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+
+        /* Panel de Chat */
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .chat-history {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .assistant-message {
+            align-self: flex-start;
+            background: #f1f2f6;
+            color: #2d3436;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .system-message {
+            align-self: center;
+            background: #ffeaa7;
+            color: #2d3436;
+            font-style: italic;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 234, 167, 0.3);
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .user-message .message-time {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .assistant-message .message-time {
+            color: rgba(45, 52, 54, 0.6);
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: all 0.3s;
+        }
+
+        #user-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+        }
+
+        #send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
             border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
-        
-        .chat-header-info h2 {
-            font-size: 1.4rem;
-            color: #f8f9fa;
+
+        #send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
-        
-        .chat-header-info p {
-            color: #a0a0b8;
-            font-size: 0.9rem;
+
+        #send-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
-        
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
+
+        /* Panel de Herramientas */
+        .tools-panel {
+            width: 350px;
+            background: white;
+            padding: 25px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
         }
-        
-        .message {
-            max-width: 75%;
+
+        .tools-panel h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .tool-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .tool-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .tool-card h4 {
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tool-card p {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .tool-card button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .tool-card button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Visualizaciones */
+        .visualization-container {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
             padding: 15px;
-            border-radius: 12px;
-            line-height: 1.5;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 300px;
             position: relative;
         }
-        
-        .message.bot {
-            background: rgba(15, 52, 96, 0.4);
-            align-self: flex-start;
-            border-bottom-left-radius: 0;
+
+        /* Estados de carga */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
         }
-        
-        .message.user {
-            background: rgba(67, 97, 238, 0.3);
-            align-self: flex-end;
-            border-bottom-right-radius: 0;
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-        
-        .message-time {
-            font-size: 0.7rem;
-            color: #a0a0b8;
-            margin-top: 8px;
-            text-align: right;
-        }
-        
-        .chat-input {
-            padding: 20px;
-            background: rgba(15, 52, 96, 0.3);
-            border-top: 1px solid #2d3749;
-            display: flex;
-            gap: 15px;
-        }
-        
-        .chat-input input {
-            flex: 1;
-            padding: 15px;
-            border-radius: 8px;
-            border: none;
-            background: rgba(26, 26, 46, 0.8);
-            color: #e6e6e6;
-            font-size: 1rem;
-        }
-        
-        .chat-input input:focus {
-            outline: 2px solid var(--primary);
-        }
-        
-        .chat-input button {
-            padding: 15px 25px;
-            border-radius: 8px;
-            border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .chat-input button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
-        }
-        
-        .tools {
-            width: 280px;
-            background: rgba(26, 26, 46, 0.6);
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .tools-title {
-            font-size: 1.2rem;
-            color: var(--secondary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #2d3749;
-        }
-        
-        .tool-card {
-            background: rgba(15, 52, 96, 0.3);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .tool-card:hover {
-            background: rgba(15, 52, 96, 0.5);
-            transform: translateY(-3px);
-        }
-        
-        .tool-card h3 {
-            color: #f8f9fa;
-            margin-bottom: 10px;
+
+        .typing-indicator {
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        
-        .tool-card p {
-            color: #a0a0b8;
-            font-size: 0.9rem;
-        }
-        
-        .visualization-container {
-            margin-top: 15px;
             padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            align-self: flex-start;
+            margin-bottom: 20px;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        
-        .visualization-placeholder {
-            text-align: center;
-            padding: 20px;
-            color: #a0a0b8;
+
+        .typing-dots {
+            display: flex;
+            margin-right: 10px;
         }
-        
-        .data-preview {
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #7f8c8d;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
         }
-        
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.8rem;
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
-        
-        .data-table th, .data-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #2d3749;
-        }
-        
-        .data-table th {
-            background: rgba(15, 52, 96, 0.4);
-            color: var(--secondary);
-        }
-        
-        .data-table tr:hover {
-            background: rgba(15, 52, 96, 0.2);
-        }
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #a0a0b8;
-            font-size: 0.9rem;
-            margin-top: auto;
-        }
-        
-        @media (max-width: 992px) {
+
+        /* Responsive */
+        @media (max-width: 1024px) {
             .container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+            
+            .content-area {
                 flex-direction: column;
             }
             
-            .sidebar, .tools {
+            .tools-panel {
                 width: 100%;
+                order: -1;
             }
-        }
-        
-        .code-block {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-            padding: 12px;
-            margin: 10px 0;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-        }
-        
-        .keyword {
-            color: var(--secondary);
-        }
-        
-        .comment {
-            color: #6c757d;
-        }
-        
-        .string {
-            color: #90ee90;
-        }
-        
-        .guide {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            border-left: 4px solid var(--secondary);
-        }
-        
-        .guide h3 {
-            color: var(--secondary);
-            margin-bottom: 10px;
-        }
-        
-        .guide ol {
-            margin-left: 20px;
-        }
-        
-        .guide li {
-            margin-bottom: 8px;
-        }
-        
-        .guide code {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-        
-        .analysis-result {
-            background: rgba(40, 167, 69, 0.1);
-            border-left: 4px solid var(--success);
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-        }
-        
-        .plot-image {
-            max-width: 100%;
-            border-radius: 8px;
-            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">
-            <i class="fas fa-brain logo-icon"></i>
-            <h1>NextiaData: Asistente Virtual de IA para Ciencia de Datos</h1>
-        </div>
-        <p class="subtitle">Herramienta avanzada de análisis y visualización de datos con inteligencia artificial integrada</p>
-    </header>
-    
     <div class="container">
+        <!-- Panel Lateral -->
         <div class="sidebar">
-            <h2 class="sidebar-title"><i class="fas fa-comments"></i> Canales de Chat</h2>
-            <ul class="chat-list">
-                <li class="chat-item active"><i class="fas fa-hashtag"></i> general</li>
-                <li class="chat-item"><i class="fas fa-hashtag"></i> análisis-datos</li>
-                <li class="chat-item"><i class="fas fa-hashtag"></i> visualización</li>
-                <li class="chat-item"><i class="fas fa-hashtag"></i> machine-learning</li>
-                <li class="chat-item"><i class="fas fa-hashtag"></i> reportes</li>
-                <li class="chat-item"><i class="fas fa-hashtag"></i> soporte-técnico</li>
-            </ul>
-            
-            <div class="data-upload">
-                <h3><i class="fas fa-upload"></i> Cargar Datos</h3>
-                <label for="file-input" class="upload-btn">
-                    <i class="fas fa-file-csv"></i> Seleccionar archivo CSV
-                </label>
-                <input type="file" id="file-input" accept=".csv">
-                <div id="file-name" style="margin-top: 10px; font-size: 0.8rem; color: #a0a0b8;"></div>
+            <div class="logo">
+                <h1>NextiaData</h1>
+                <p>Asistente Virtual de IA para Ciencia de Datos</p>
             </div>
-            
-            <div class="guide">
+
+            <div class="channels">
+                <h3>Canales de Chat</h3>
+                <ul class="channel-list">
+                    <li class="active"><i class="fas fa-hashtag"></i> general</li>
+                    <li><i class="fas fa-hashtag"></i> análisis-datos</li>
+                    <li><i class="fas fa-hashtag"></i> visualización</li>
+                    <li><i class="fas fa-hashtag"></i> machine-learning</li>
+                    <li><i class="fas fa-hashtag"></i> reportes</li>
+                    <li><i class="fas fa-hashtag"></i> soporte-técnico</li>
+                </ul>
+            </div>
+
+            <div class="upload-section">
+                <h3><i class="fas fa-upload"></i> Cargar Datos</h3>
+                <div class="upload-area" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Haz clic o arrastra tu archivo CSV</p>
+                    <input type="file" id="file-input" accept=".csv">
+                </div>
+                <div id="file-info">No se ha cargado ningún archivo</div>
+            </div>
+
+            <div class="quick-guide">
                 <h3>Guía Rápida</h3>
                 <ol>
                     <li>Carga un dataset CSV</li>
@@ -479,451 +524,371 @@
                 </ol>
             </div>
         </div>
-        
+
+        <!-- Contenido Principal -->
         <div class="main-content">
-            <div class="chat-header">
-                <div class="chat-avatar">
-                    <i class="fas fa-robot"></i>
+            <div class="header">
+                <h2>Asistente de IA Nextia</h2>
+                <p>Especializado en ciencia de datos y análisis de marketing</p>
+            </div>
+
+            <div class="content-area">
+                <!-- Panel de Chat -->
+                <div class="chat-panel">
+                    <div class="chat-history" id="chat-history">
+                        <!-- Mensajes se cargarán aquí dinámicamente -->
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea id="user-input" placeholder="Escribe tu mensaje o pregunta aquí..." rows="1"></textarea>
+                            <button id="send-button">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="chat-header-info">
-                    <h2>Asistente de IA Nextia</h2>
-                    <p>Especializado en ciencia de datos y análisis de marketing</p>
-                </div>
-            </div>
-            
-            <div class="chat-messages">
-                <div class="message bot">
-                    <p>¡Hola! Soy Nextia, tu asistente virtual de IA para ciencia de datos. ¿En qué puedo ayudarte hoy?</p>
-                    <div class="message-time">10:00 AM</div>
-                </div>
-                
-                <div class="message bot">
-                    <p>Puedo ayudarte a:</p>
-                    <ul>
-                        <li>Analizar tus datasets</li>
-                        <li>Crear visualizaciones</li>
-                        <li>Generar modelos predictivos</li>
-                        <li>Optimizar campañas de marketing</li>
-                    </ul>
-                    <div class="message-time">10:00 AM</div>
-                </div>
-                
-                <div class="message user">
-                    <p>Hola Nextia, me gustaría analizar un dataset de ventas.</p>
-                    <div class="message-time">10:02 AM</div>
-                </div>
-                
-                <div class="message bot">
-                    <p>¡Excelente! Primero, por favor carga tu archivo CSV usando el panel izquierdo. Luego podré analizarlo y generar insights valiosos para ti.</p>
-                    <div class="message-time">10:03 AM</div>
-                </div>
-            </div>
-            
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="Escribe tu mensaje o pregunta aquí...">
-                <button id="send-btn">Enviar <i class="fas fa-paper-plane"></i></button>
-            </div>
-        </div>
-        
-        <div class="tools">
-            <h2 class="tools-title"><i class="fas fa-tools"></i> Herramientas de Análisis</h2>
-            
-            <div class="tool-card" onclick="analyzeData()">
-                <h3><i class="fas fa-chart-bar"></i> Análisis Exploratorio</h3>
-                <p>Examina estadísticas básicas y distribuciones de tus datos</p>
-            </div>
-            
-            <div class="tool-card" onclick="visualizeData('line')">
-                <h3><i class="fas fa-chart-line"></i> Gráfico de Líneas</h3>
-                <p>Visualiza tendencias y cambios a lo largo del tiempo</p>
-            </div>
-            
-            <div class="tool-card" onclick="visualizeData('bar')">
-                <h3><i class="fas fa-chart-bar"></i> Gráfico de Barras</h3>
-                <p>Compara categorías y frecuencias entre grupos</p>
-            </div>
-            
-            <div class="tool-card" onclick="visualizeData('histogram')">
-                <h3><i class="fas fa-chart-area"></i> Histograma</h3>
-                <p>Analiza la distribución de variables numéricas</p>
-            </div>
-            
-            <div class="tool-card" onclick="generateReport()">
-                <h3><i class="fas fa-file-pdf"></i> Generar Reporte</h3>
-                <p>Crea un reporte PDF con tus análisis and visualizaciones</p>
-            </div>
-            
-            <div class="visualization-container">
-                <h3><i class="fas fa-image"></i> Visualización</h3>
-                <div class="visualization-placeholder" id="visualization-placeholder">
-                    <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                    <p>Selecciona una herramienta de visualización</p>
-                </div>
-                <canvas id="plot-canvas" style="display: none; width: 100%; height: 200px;"></canvas>
-                <img id="plot-image" class="plot-image" style="display: none;">
-            </div>
-            
-            <div class="data-preview">
-                <h3><i class="fas fa-table"></i> Vista Previa de Datos</h3>
-                <div id="data-preview-content">
-                    <p style="text-align: center; color: #a0a0b8; padding: 20px;">
-                        Carga un archivo CSV para previsualizar los datos
-                    </p>
+
+                <!-- Panel de Herramientas -->
+                <div class="tools-panel">
+                    <h3>Herramientas de Análisis</h3>
+
+                    <div class="tool-card" onclick="runAnalysis('basic')">
+                        <h4>Análisis Exploratorio</h4>
+                        <p>Examina estadísticas básicas y distribuciones de tus datos</p>
+                        <button>Ejecutar Análisis</button>
+                    </div>
+
+                    <div class="tool-card" onclick="suggestVisualizations()">
+                        <h4>Gráfico de Líneas</h4>
+                        <p>Visualiza tendencias y cambios a lo largo del tiempo</p>
+                        <button>Generar Gráfico</button>
+                    </div>
+
+                    <div class="tool-card" onclick="suggestVisualizations()">
+                        <h4>Gráfico de Barras</h4>
+                        <p>Compara categorías y frecuencias entre grupos</p>
+                        <button>Generar Gráfico</button>
+                    </div>
+
+                    <div class="tool-card" onclick="suggestVisualizations()">
+                        <h4>Histograma</h4>
+                        <p>Analiza la distribución de variables numéricas</p>
+                        <button>Generar Gráfico</button>
+                    </div>
+
+                    <div class="tool-card" onclick="generateReport()">
+                        <h4>Generar Reporte</h4>
+                        <p>Crea un reporte PDF con tus análisis y visualizaciones</p>
+                        <button>Generar Reporte</button>
+                    </div>
+
+                    <!-- Área para visualizaciones -->
+                    <div id="visualization-area" style="display: none;">
+                        <h4 style="margin-top: 20px;">Visualizaciones</h4>
+                        <div id="chart-container" class="chart-container"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <footer>
-        <p>NextiaData AI Assistant &copy; 2023 - Desarrollado por JorgeSensei</p>
-    </footer>
 
     <script>
         // Variables globales
         let currentDataset = null;
-        const GEMINI_API_KEY = "TU_NUEVA_API_KEY_AQUI";
-        const FLASK_BACKEND = "http://127.0.0.1:5000";
-        
+        let currentChart = null;
+
         // Elementos DOM
-        const fileInput = document.getElementById('file-input');
-        const fileName = document.getElementById('file-name');
+        const chatHistory = document.getElementById('chat-history');
         const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const chatMessages = document.querySelector('.chat-messages');
-        const dataPreview = document.getElementById('data-preview-content');
-        const visualizationPlaceholder = document.getElementById('visualization-placeholder');
-        const plotCanvas = document.getElementById('plot-canvas');
-        const plotImage = document.getElementById('plot-image');
+        const sendButton = document.getElementById('send-button');
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const fileInfo = document.getElementById('file-info');
+        const visualizationArea = document.getElementById('visualization-area');
+        const chartContainer = document.getElementById('chart-container');
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            addMessage('Hola, soy Nextia, tu asistente virtual de IA para ciencia de datos. ¿En qué puedo ayudarte hoy?', 'assistant');
+            
             // Event listeners
-            fileInput.addEventListener('change', handleFileUpload);
-            sendBtn.addEventListener('click', sendMessage);
+            sendButton.addEventListener('click', sendMessage);
             userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') sendMessage();
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
             });
 
-            // Configurar herramientas
-            setupToolCards();
+            // Auto-resize textarea
+            userInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+
+            // Upload handlers
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = '#3498db';
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            });
+
+            fileInput.addEventListener('change', handleFileUpload);
         });
 
-        // Manejar carga de archivos
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                fileName.textContent = `Archivo: ${file.name}`;
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const csvData = e.target.result;
-                        parseCSV(csvData);
-                    } catch (error) {
-                        addMessage('bot', `❌ Error al procesar el archivo: ${error.message}`);
-                    }
-                };
-                reader.readAsText(file);
-            }
-        }
-
-        // Parsear CSV
-        function parseCSV(csvData) {
-            const lines = csvData.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            const rows = [];
-            
-            for (let i = 1; i < Math.min(lines.length, 11); i++) {
-                if (lines[i].trim()) {
-                    const values = lines[i].split(',').map(v => v.trim());
-                    rows.push(values);
-                }
-            }
-            
-            currentDataset = { headers, rows };
-            showDataPreview();
-            addMessage('bot', '✅ Archivo CSV cargado exitosamente. Ahora puedes analizarlo usando las herramientas del panel derecho.');
-        }
-
-        // Mostrar vista previa de datos
-        function showDataPreview() {
-            if (!currentDataset) return;
-            
-            let tableHTML = `
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            ${currentDataset.headers.map(header => `<th>${header}</th>`).join('')}
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-            
-            currentDataset.rows.forEach(row => {
-                tableHTML += `
-                    <tr>
-                        ${row.map(cell => `<td>${cell}</td>`).join('')}
-                    </tr>
-                `;
-            });
-            
-            tableHTML += '</tbody></table>';
-            dataPreview.innerHTML = tableHTML;
-        }
-
-        // Configurar tarjetas de herramientas
-        function setupToolCards() {
-            const toolCards = document.querySelectorAll('.tool-card');
-            toolCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    toolCards.forEach(c => c.style.border = 'none');
-                    this.style.border = '2px solid #4361ee';
-                });
-            });
-        }
-
-        // Enviar mensaje
-        function sendMessage() {
-            const message = userInput.value.trim();
-            if (message) {
-                addMessage('user', message);
-                userInput.value = '';
-                
-                // Mostrar indicador de typing
-                const typingIndicator = addTypingIndicator();
-                
-                // Enviar a backend Flask con Gemini
-                sendToGemini(message, typingIndicator);
-            }
-        }
-
-        // Añadir mensaje al chat
-        function addMessage(sender, text) {
+        // Funciones del chat
+        function addMessage(text, type) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
+            messageDiv.className = `message ${type}-message`;
             
-            const time = new Date().toLocaleTimeString([], { 
-                hour: '2-digit', minute: '2-digit' 
-            });
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
             messageDiv.innerHTML = `
-                <p>${text}</p>
+                <div class="message-content">${formatMessage(text)}</div>
                 <div class="message-time">${time}</div>
             `;
             
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            return messageDiv;
+            chatHistory.appendChild(messageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        // Añadir indicador de typing
-        function addTypingIndicator() {
-            const indicator = document.createElement('div');
-            indicator.className = 'message bot';
-            indicator.id = 'typing-indicator';
-            indicator.innerHTML = `
-                <p><i class="fas fa-ellipsis-h"></i> Nextia está pensando...</p>
-                <div class="message-time">${new Date().toLocaleTimeString([], { 
-                    hour: '2-digit', minute: '2-digit' 
-                })}</div>
+        function formatMessage(text) {
+            // Convertir URLs en enlaces
+            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            // Convertir saltos de línea en <br>
+            text = text.replace(/\n/g, '<br>');
+            return text;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>Nextia está escribiendo...</span>
+            `;
+            chatHistory.appendChild(typingDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Agregar mensaje del usuario
+            addMessage(message, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            sendButton.disabled = true;
+
+            // Mostrar indicador de typing
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('/ai/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: 'default',
+                        message: message
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addMessage(data.response, 'assistant');
+                } else {
+                    addMessage(`Error: ${data.error}`, 'assistant');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('Error de conexión. Por favor, intenta nuevamente.', 'assistant');
+            } finally {
+                hideTypingIndicator();
+                sendButton.disabled = false;
+                userInput.focus();
+            }
+        }
+
+        // Funciones de archivos
+        async function handleFileUpload() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            fileInfo.textContent = `Subiendo: ${file.name}...`;
+            uploadArea.style.borderColor = '#f39c12';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('user_id', 'default');
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    fileInfo.textContent = `✅ ${file.name} (${data.data.shape[0]} filas, ${data.data.shape[1]} columnas)`;
+                    uploadArea.style.borderColor = '#27ae60';
+                    currentDataset = data.data;
+                    
+                    addMessage(`Dataset "${file.name}" cargado exitosamente. ${data.data.shape[0]} filas, ${data.data.shape[1]} columnas`, 'system');
+                    
+                    // Mostrar información del dataset
+                    showDatasetInfo(data.data);
+                } else {
+                    fileInfo.textContent = `❌ Error: ${data.error}`;
+                    uploadArea.style.borderColor = '#e74c3c';
+                    addMessage(`Error al cargar el archivo: ${data.error}`, 'system');
+                }
+            } catch (error) {
+                fileInfo.textContent = '❌ Error de conexión';
+                uploadArea.style.borderColor = '#e74c3c';
+                addMessage('Error de conexión al subir el archivo', 'system');
+            }
+        }
+
+        function showDatasetInfo(dataset) {
+            let infoHTML = `
+                <div class="message system-message">
+                    <strong>Información del Dataset:</strong><br>
+                    📊 <strong>Archivo:</strong> ${dataset.filename}<br>
+                    📈 <strong>Dimensiones:</strong> ${dataset.shape[0]} filas × ${dataset.shape[1]} columnas<br>
+                    🔢 <strong>Columnas numéricas:</strong> ${dataset.numeric_columns ? dataset.numeric_columns.length : 0}<br>
+                    🏷️ <strong>Columnas categóricas:</strong> ${dataset.categorical_columns ? dataset.categorical_columns.length : 0}
+                </div>
             `;
             
-            chatMessages.appendChild(indicator);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            return indicator;
+            // Insertar después del último mensaje
+            const lastMessage = chatHistory.lastChild;
+            chatHistory.insertAdjacentHTML('beforeend', infoHTML);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        // Enviar mensaje a Gemini via Flask
-        async function sendToGemini(message, typingIndicator) {
+        // Funciones de análisis
+        async function runAnalysis(analysisType) {
+            if (!currentDataset) {
+                addMessage('Por favor, carga un dataset CSV primero usando el panel izquierdo.', 'assistant');
+                return;
+            }
+
+            showTypingIndicator();
+
             try {
-                const response = await fetch(`${FLASK_BACKEND}/ai/ask`, {
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        message: message,
-                        dataset_info: currentDataset ? 
-                            `Dataset cargado: ${currentDataset.headers.join(', ')} con ${currentDataset.rows.length} filas` : 
-                            'Sin dataset cargado'
+                        user_id: 'default',
+                        analysis_type: analysisType
                     })
                 });
 
                 const data = await response.json();
-                
-                // Remover indicador de typing
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                
+
                 if (data.success) {
-                    addMessage('bot', data.response);
+                    let analysisText = '📊 <strong>Análisis Exploratorio Completado:</strong><br><br>';
+                    
+                    if (analysisType === 'basic') {
+                        analysisText += `
+                            • <strong>Resumen estadístico:</strong> Generado para todas las columnas<br>
+                            • <strong>Valores faltantes:</strong> Analizados<br>
+                            • <strong>Correlaciones:</strong> Calculadas entre variables numéricas<br>
+                            <br>
+                            <em>Revisa la consola del navegador para ver los detalles completos.</em>
+                        `;
+                        console.log('Análisis básico:', data.analysis);
+                    }
+                    
+                    addMessage(analysisText, 'assistant');
                 } else {
-                    addMessage('bot', `❌ Error: ${data.error}`);
+                    addMessage(`Error en el análisis: ${data.error}`, 'assistant');
                 }
             } catch (error) {
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                addMessage('bot', '❌ Error de conexión con el servidor. Asegúrate de que Flask esté ejecutándose.');
-                console.error('Error:', error);
+                addMessage('Error de conexión durante el análisis', 'assistant');
+            } finally {
+                hideTypingIndicator();
             }
         }
 
-        // Análisis de datos
-        async function analyzeData() {
+        async function suggestVisualizations() {
             if (!currentDataset) {
-                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
+                addMessage('Por favor, carga un dataset CSV primero para generar visualizaciones.', 'assistant');
                 return;
             }
 
-            const typingIndicator = addTypingIndicator();
+            addMessage('🔍 Analizando dataset para sugerir visualizaciones...', 'system');
             
             try {
-                const response = await fetch(`${FLASK_BACKEND}/analyze`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dataset: {
-                            headers: currentDataset.headers,
-                            rows: currentDataset.rows
-                        }
-                    })
-                });
-
+                const response = await fetch('/api/suggest_visualizations?user_id=default');
                 const data = await response.json();
-                
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                
-                if (data.success) {
-                    const analysis = data.analysis;
-                    let analysisText = `📊 **Análisis Exploratorio del Dataset**\n\n`;
-                    analysisText += `• **Filas:** ${analysis.rows}\n`;
-                    analysisText += `• **Columnas:** ${analysis.columns}\n`;
-                    analysisText += `• **Nombres de columnas:** ${analysis.column_names.join(', ')}\n\n`;
+
+                if (data.success && data.suggestions.length > 0) {
+                    let suggestionsText = '🎨 <strong>Visualizaciones Sugeridas:</strong><br><br>';
                     
-                    addMessage('bot', analysisText);
+                    data.suggestions.forEach((suggestion, index) => {
+                        suggestionsText += `
+                            ${index + 1}. <strong>${suggestion.name}</strong><br>
+                            &nbsp;&nbsp;&nbsp;📝 ${suggestion.description}<br>
+                        `;
+                    });
+                    
+                    suggestionsText += '<br><em>Puedo generar estas visualizaciones automáticamente. ¿Te interesa alguna?</em>';
+                    
+                    addMessage(suggestionsText, 'assistant');
                 } else {
-                    addMessage('bot', `❌ Error en análisis: ${data.error}`);
+                    addMessage('No se pudieron generar sugerencias de visualizaciones para este dataset.', 'assistant');
                 }
             } catch (error) {
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                addMessage('bot', '❌ Error de conexión durante el análisis.');
+                addMessage('Error al obtener sugerencias de visualizaciones', 'assistant');
             }
         }
 
-        // Visualización de datos
-        async function visualizeData(chartType) {
-            if (!currentDataset) {
-                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
-                return;
-            }
-
-            const typingIndicator = addTypingIndicator();
-            
-            try {
-                const response = await fetch(`${FLASK_BACKEND}/visualize`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dataset: {
-                            headers: currentDataset.headers,
-                            rows: currentDataset.rows
-                        },
-                        chart_type: chartType,
-                        x_column: 0,
-                        y_column: 1
-                    })
-                });
-
-                const data = await response.json();
-                
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                
-                if (data.success) {
-                    // Mostrar imagen
-                    plotImage.src = `data:image/png;base64,${data.image}`;
-                    plotImage.style.display = 'block';
-                    plotCanvas.style.display = 'none';
-                    visualizationPlaceholder.style.display = 'none';
-                    
-                    addMessage('bot', '✅ Visualización generada exitosamente. Revisa el panel de herramientas.');
-                } else {
-                    addMessage('bot', `❌ Error en visualización: ${data.error}`);
-                }
-            } catch (error) {
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                addMessage('bot', '❌ Error de conexión durante la visualización.');
-            }
+        function generateReport() {
+            addMessage('📄 La generación de reportes PDF estará disponible en la próxima actualización.', 'assistant');
         }
 
-        // Generar reporte
-        async function generateReport() {
-            if (!currentDataset) {
-                addMessage('bot', '❌ Por favor carga un dataset CSV primero.');
-                return;
-            }
-
-            const typingIndicator = addTypingIndicator();
-            
-            try {
-                const response = await fetch(`${FLASK_BACKEND}/export`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        dataset: {
-                            headers: currentDataset.headers,
-                            rows: currentDataset.rows
-                        }
-                    })
-                });
-
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.style.display = 'none';
-                    a.href = url;
-                    a.download = 'nextia_analysis_report.xlsx';
-                    document.body.appendChild(a);
-                    a.click();
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
-                    
-                    addMessage('bot', '✅ Reporte generado y descargado exitosamente.');
-                } else {
-                    addMessage('bot', '❌ Error al generar el reporte.');
-                }
-            } catch (error) {
-                if (typingIndicator) {
-                    typingIndicator.remove();
-                }
-                addMessage('bot', '❌ Error de conexión al generar reporte.');
-            }
+        // Utilidad para limpiar el chat
+        function clearChat() {
+            chatHistory.innerHTML = '';
+            addMessage('Chat limpiado. ¿En qué puedo ayudarte?', 'assistant');
         }
-
-        // Funciones de utilidad para las herramientas
-        window.analyzeData = analyzeData;
-        window.visualizeData = visualizeData;
-        window.generateReport = generateReport;
     </script>
 </body>
 </html>
