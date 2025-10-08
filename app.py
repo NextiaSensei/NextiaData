@@ -479,6 +479,153 @@ def suggest_visualizations():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
+# NUEVO ENDPOINT PARA CHART.JS - GRÁFICOS INTERACTIVOS
+@app.route('/api/chart_data', methods=['POST'])
+def get_chart_data():
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id', 'default')
+        chart_type = data.get('chart_type')
+        x_column = data.get('x_column')
+        y_column = data.get('y_column')
+        
+        user_data = user_datasets.get(user_id)
+        if not user_data:
+            return jsonify({'success': False, 'error': 'No dataset loaded for user'})
+        
+        filepath = user_data['filepath']
+        df = pd.read_csv(filepath)
+        
+        if chart_type == 'histogram':
+            chart_data = {
+                'labels': df[x_column].dropna().tolist(),
+                'datasets': [{
+                    'label': f'Distribución de {x_column}',
+                    'data': df[x_column].dropna().tolist(),
+                    'backgroundColor': 'rgba(54, 162, 235, 0.5)',
+                    'borderColor': 'rgba(54, 162, 235, 1)',
+                    'borderWidth': 1
+                }]
+            }
+            
+        elif chart_type == 'bar':
+            if y_column:
+                # Gráfico de barras con valores
+                df_grouped = df.groupby(x_column)[y_column].mean().sort_values(ascending=False).head(10)
+                chart_data = {
+                    'labels': df_grouped.index.tolist(),
+                    'datasets': [{
+                        'label': f'Promedio de {y_column}',
+                        'data': df_grouped.values.tolist(),
+                        'backgroundColor': 'rgba(255, 99, 132, 0.5)',
+                        'borderColor': 'rgba(255, 99, 132, 1)',
+                        'borderWidth': 1
+                    }]
+                }
+            else:
+                # Conteo de categorías
+                value_counts = df[x_column].value_counts().head(10)
+                chart_data = {
+                    'labels': value_counts.index.tolist(),
+                    'datasets': [{
+                        'label': f'Frecuencia de {x_column}',
+                        'data': value_counts.values.tolist(),
+                        'backgroundColor': 'rgba(75, 192, 192, 0.5)',
+                        'borderColor': 'rgba(75, 192, 192, 1)',
+                        'borderWidth': 1
+                    }]
+                }
+                
+        elif chart_type == 'line' and y_column:
+            # Ordenar por la columna x
+            temp_df = df.sort_values(by=x_column)
+            chart_data = {
+                'labels': temp_df[x_column].astype(str).tolist(),
+                'datasets': [{
+                    'label': y_column,
+                    'data': temp_df[y_column].tolist(),
+                    'borderColor': 'rgba(153, 102, 255, 1)',
+                    'backgroundColor': 'rgba(153, 102, 255, 0.1)',
+                    'tension': 0.1,
+                    'fill': True
+                }]
+            }
+            
+        elif chart_type == 'scatter' and y_column:
+            chart_data = {
+                'datasets': [{
+                    'label': f'{y_column} vs {x_column}',
+                    'data': [{'x': x, 'y': y} for x, y in zip(df[x_column], df[y_column])],
+                    'backgroundColor': 'rgba(255, 159, 64, 0.5)',
+                    'borderColor': 'rgba(255, 159, 64, 1)',
+                    'pointRadius': 5
+                }]
+            }
+            
+        else:
+            return jsonify({'success': False, 'error': 'Tipo de gráfico no soportado'})
+        
+        return jsonify({
+            'success': True, 
+            'chart_data': chart_data,
+            'chart_type': chart_type,
+            'options': get_chart_options(chart_type, x_column, y_column)
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+def get_chart_options(chart_type, x_label, y_label):
+    """Generar opciones de configuración para Chart.js"""
+    base_options = {
+        'responsive': True,
+        'maintainAspectRatio': False,
+        'plugins': {
+            'legend': {
+                'position': 'top',
+            },
+            'title': {
+                'display': True,
+                'text': f'Gráfico de {chart_type}'
+            }
+        }
+    }
+    
+    if chart_type in ['line', 'bar']:
+        base_options['scales'] = {
+            'x': {
+                'title': {
+                    'display': True,
+                    'text': x_label
+                }
+            },
+            'y': {
+                'title': {
+                    'display': True,
+                    'text': y_label if y_label else 'Frecuencia'
+                }
+            }
+        }
+    elif chart_type == 'scatter':
+        base_options['scales'] = {
+            'x': {
+                'title': {
+                    'display': True,
+                    'text': x_label
+                },
+                'type': 'linear',
+                'position': 'bottom'
+            },
+            'y': {
+                'title': {
+                    'display': True,
+                    'text': y_label
+                }
+            }
+        }
+    
+    return base_options
+
 if __name__ == '__main__':
     host = os.getenv('NEXTIA_HOST', '127.0.0.1')
     port = int(os.getenv('NEXTIA_PORT', 5000))
