@@ -13,6 +13,8 @@ from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import numpy as np
 from datetime import datetime
+import json
+from flask import render_template_string
 
 # Cargar variables de entorno
 load_dotenv()
@@ -292,6 +294,15 @@ def analyze_data():
         filepath = user_data['filepath']
         df = pd.read_csv(filepath)
         
+        # ✅ NUEVA VALIDACIÓN PARA DATASETS PEQUEÑOS
+        if len(df) < 3:
+            return jsonify({
+                'success': False, 
+                'error': 'El dataset es muy pequeño para análisis estadístico. Necesita al menos 3 filas.',
+                'min_rows_required': 3,
+                'current_rows': len(df)
+            })
+        
         if analysis_type == 'basic':
             # Análisis básico mejorado
             describe_stats = df.describe(include='all').to_dict()
@@ -479,9 +490,9 @@ def suggest_visualizations():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-# NUEVO ENDPOINT PARA CHART.JS - GRÁFICOS INTERACTIVOS
-@app.route('/api/chart_data', methods=['POST'])
-def get_chart_data():
+# ✅ NUEVO ENDPOINT MEJORADO PARA CHART.JS - GRÁFICOS INTERACTIVOS
+@app.route('/api/chartjs/data', methods=['POST'])
+def get_chartjs_data():
     try:
         data = request.get_json()
         user_id = data.get('user_id', 'default')
@@ -491,85 +502,285 @@ def get_chart_data():
         
         user_data = user_datasets.get(user_id)
         if not user_data:
-            return jsonify({'success': False, 'error': 'No dataset loaded for user'})
+            return jsonify({'success': False, 'error': 'No dataset cargado'})
         
         filepath = user_data['filepath']
         df = pd.read_csv(filepath)
         
-        if chart_type == 'histogram':
-            chart_data = {
-                'labels': df[x_column].dropna().tolist(),
+        # Limpiar datos y manejar valores nulos
+        df_clean = df.dropna()
+        
+        chart_data = {
+            'success': True,
+            'chart_type': chart_type,
+            'data': None,
+            'options': None
+        }
+        
+        if chart_type == 'line' and y_column:
+            # Ordenar por la columna x para líneas continuas
+            temp_df = df_clean.sort_values(by=x_column)
+            chart_data['data'] = {
+                'labels': temp_df[x_column].astype(str).tolist(),
                 'datasets': [{
-                    'label': f'Distribución de {x_column}',
-                    'data': df[x_column].dropna().tolist(),
-                    'backgroundColor': 'rgba(54, 162, 235, 0.5)',
-                    'borderColor': 'rgba(54, 162, 235, 1)',
-                    'borderWidth': 1
+                    'label': y_column,
+                    'data': temp_df[y_column].tolist(),
+                    'borderColor': 'rgb(75, 192, 192)',
+                    'backgroundColor': 'rgba(75, 192, 192, 0.2)',
+                    'tension': 0.1,
+                    'fill': True
                 }]
+            }
+            chart_data['options'] = {
+                'responsive': True,
+                'plugins': {
+                    'title': {
+                        'display': True,
+                        'text': f'Tendencia de {y_column}'
+                    },
+                    'legend': {
+                        'position': 'top',
+                    }
+                },
+                'scales': {
+                    'x': {
+                        'title': {
+                            'display': True,
+                            'text': x_column
+                        }
+                    },
+                    'y': {
+                        'title': {
+                            'display': True,
+                            'text': y_column
+                        }
+                    }
+                }
             }
             
         elif chart_type == 'bar':
             if y_column:
                 # Gráfico de barras con valores
-                df_grouped = df.groupby(x_column)[y_column].mean().sort_values(ascending=False).head(10)
-                chart_data = {
+                df_grouped = df_clean.groupby(x_column)[y_column].mean().sort_values(ascending=False).head(10)
+                chart_data['data'] = {
                     'labels': df_grouped.index.tolist(),
                     'datasets': [{
                         'label': f'Promedio de {y_column}',
                         'data': df_grouped.values.tolist(),
-                        'backgroundColor': 'rgba(255, 99, 132, 0.5)',
-                        'borderColor': 'rgba(255, 99, 132, 1)',
+                        'backgroundColor': [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ],
+                        'borderColor': [
+                            'rgb(255, 99, 132)',
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 206, 86)',
+                            'rgb(75, 192, 192)',
+                            'rgb(153, 102, 255)'
+                        ],
                         'borderWidth': 1
                     }]
                 }
             else:
                 # Conteo de categorías
-                value_counts = df[x_column].value_counts().head(10)
-                chart_data = {
+                value_counts = df_clean[x_column].value_counts().head(10)
+                chart_data['data'] = {
                     'labels': value_counts.index.tolist(),
                     'datasets': [{
                         'label': f'Frecuencia de {x_column}',
                         'data': value_counts.values.tolist(),
-                        'backgroundColor': 'rgba(75, 192, 192, 0.5)',
-                        'borderColor': 'rgba(75, 192, 192, 1)',
+                        'backgroundColor': 'rgba(54, 162, 235, 0.8)',
+                        'borderColor': 'rgb(54, 162, 235)',
                         'borderWidth': 1
                     }]
                 }
-                
-        elif chart_type == 'line' and y_column:
-            # Ordenar por la columna x
-            temp_df = df.sort_values(by=x_column)
-            chart_data = {
-                'labels': temp_df[x_column].astype(str).tolist(),
-                'datasets': [{
-                    'label': y_column,
-                    'data': temp_df[y_column].tolist(),
-                    'borderColor': 'rgba(153, 102, 255, 1)',
-                    'backgroundColor': 'rgba(153, 102, 255, 0.1)',
-                    'tension': 0.1,
-                    'fill': True
-                }]
+            
+            chart_data['options'] = {
+                'responsive': True,
+                'plugins': {
+                    'title': {
+                        'display': True,
+                        'text': f'Gráfico de Barras - {x_column}'
+                    },
+                    'legend': {
+                        'position': 'top',
+                    }
+                },
+                'scales': {
+                    'y': {
+                        'beginAtZero': True
+                    }
+                }
             }
             
-        elif chart_type == 'scatter' and y_column:
-            chart_data = {
+        elif chart_type == 'histogram':
+            # Histograma usando Chart.js
+            values = df_clean[x_column].tolist()
+            chart_data['data'] = {
+                'labels': [f'Bin {i+1}' for i in range(len(values))],
                 'datasets': [{
-                    'label': f'{y_column} vs {x_column}',
-                    'data': [{'x': x, 'y': y} for x, y in zip(df[x_column], df[y_column])],
-                    'backgroundColor': 'rgba(255, 159, 64, 0.5)',
-                    'borderColor': 'rgba(255, 159, 64, 1)',
-                    'pointRadius': 5
+                    'label': f'Distribución de {x_column}',
+                    'data': values,
+                    'backgroundColor': 'rgba(255, 159, 64, 0.8)',
+                    'borderColor': 'rgb(255, 159, 64)',
+                    'borderWidth': 1
                 }]
+            }
+            chart_data['options'] = {
+                'responsive': True,
+                'plugins': {
+                    'title': {
+                        'display': True,
+                        'text': f'Histograma de {x_column}'
+                    }
+                },
+                'scales': {
+                    'y': {
+                        'beginAtZero': True
+                    }
+                }
             }
             
         else:
             return jsonify({'success': False, 'error': 'Tipo de gráfico no soportado'})
         
+        return jsonify(chart_data)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+# ✅ NUEVO ENDPOINT PARA OBTENER COLUMNAS DEL DATASET
+@app.route('/api/dataset/columns', methods=['GET'])
+def get_dataset_columns():
+    try:
+        user_id = request.args.get('user_id', 'default')
+        user_data = user_datasets.get(user_id)
+        
+        if not user_data:
+            return jsonify({'success': False, 'error': 'No dataset cargado'})
+            
+        return jsonify({
+            'success': True,
+            'columns': user_data['columns'],
+            'numeric_columns': user_data['numeric_columns'],
+            'categorical_columns': user_data['categorical_columns']
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+# ✅ NUEVO ENDPOINT PARA GENERAR REPORTES
+@app.route('/api/generate_report', methods=['POST'])
+def generate_report():
+    try:
+        user_id = request.get_json().get('user_id', 'default')
+        user_data = user_datasets.get(user_id)
+        
+        if not user_data:
+            return jsonify({'success': False, 'error': 'No dataset cargado'})
+        
+        # ✅ REPORTE BÁSICO EN HTML (podemos expandirlo después)
+        report_html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reporte NextiaData - {user_data['filename']}</title>
+            <style>
+                body {{ font-family: Arial, sans-serif; margin: 20px; color: #333; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; }}
+                .section {{ margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }}
+                .stats-grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }}
+                .stat-card {{ background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; }}
+                table {{ width: 100%; border-collapse: collapse; margin: 10px 0; }}
+                th, td {{ padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }}
+                th {{ background-color: #f2f2f2; }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>📊 Reporte de Análisis NextiaData</h1>
+                <p><strong>Generado:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+            </div>
+            
+            <div class="section">
+                <h2>📁 Información del Dataset</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <strong>Archivo:</strong><br>{user_data['filename']}
+                    </div>
+                    <div class="stat-card">
+                        <strong>Filas:</strong><br>{user_data['shape'][0]}
+                    </div>
+                    <div class="stat-card">
+                        <strong>Columnas:</strong><br>{user_data['shape'][1]}
+                    </div>
+                    <div class="stat-card">
+                        <strong>Fecha de Carga:</strong><br>{user_data['upload_time'][:16].replace('T', ' ')}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔢 Columnas Numéricas</h2>
+                <ul>
+                    {''.join([f'<li>📈 {col}</li>' for col in user_data['numeric_columns']]) if user_data['numeric_columns'] else '<li>No hay columnas numéricas</li>'}
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>🏷️ Columnas Categóricas</h2>
+                <ul>
+                    {''.join([f'<li>📊 {col}</li>' for col in user_data['categorical_columns']]) if user_data['categorical_columns'] else '<li>No hay columnas categóricas</li>'}
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Muestra de Datos (Primeras 5 filas)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            {' '.join([f'<th>{col}</th>' for col in user_data['columns']])}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {''.join(['<tr>' + ''.join([f'<td>{str(row[col])}</td>' for col in user_data['columns']]) + '</tr>' for row in user_data['sample']])}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Valores Faltantes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Columna</th>
+                            <th>Valores Faltantes</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {''.join([f'<tr><td>{col}</td><td>{user_data["missing_values"][col]}</td><td>{(user_data["missing_values"][col] / user_data["shape"][0] * 100):.1f}%</td></tr>' for col in user_data['columns']])}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <p><em>Reporte generado automáticamente por NextiaData Assistant</em></p>
+                <p><strong>✨ Características incluidas:</strong> Análisis exploratorio, Visualizaciones interactivas, IA integrada</p>
+            </div>
+        </body>
+        </html>
+        """
+        
         return jsonify({
             'success': True, 
-            'chart_data': chart_data,
-            'chart_type': chart_type,
-            'options': get_chart_options(chart_type, x_column, y_column)
+            'report_html': report_html,
+            'message': 'Reporte generado exitosamente'
         })
         
     except Exception as e:
@@ -632,5 +843,5 @@ if __name__ == '__main__':
     debug = os.getenv('NEXTIA_DEBUG', 'True').lower() in ('1','true','yes')
     print(f"✨ NextiaData arrancando en http://{host}:{port} (debug={debug})")
     print(f"📁 Upload folder: {app.config['UPLOAD_FOLDER']}")
-    print("🚀 Características activadas: Uploads, Análisis, Visualizaciones, IA")
+    print("🚀 Características activadas: Uploads, Análisis, Visualizaciones, IA, Reportes")
     app.run(host=host, port=port, debug=debug)

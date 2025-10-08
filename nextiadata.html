@@ -459,6 +459,121 @@
             40% { transform: scale(1); opacity: 1; }
         }
 
+        /* NUEVOS ESTILOS PARA CHART.JS */
+        .chart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chart-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .chart-controls {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chart-control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .chart-control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .chart-control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .chart-control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+
+        .chart-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .chart-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .chart-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .chart-container-full {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+
+        .visualization-preview {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .visualization-preview:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .preview-chart {
+            width: 100%;
+            height: 200px;
+        }
+
         /* Responsive */
         @media (max-width: 1024px) {
             .container {
@@ -558,19 +673,19 @@
                         <button>Ejecutar Análisis</button>
                     </div>
 
-                    <div class="tool-card" onclick="suggestVisualizations()">
+                    <div class="tool-card" onclick="openChartModal('line')">
                         <h4>Gráfico de Líneas</h4>
                         <p>Visualiza tendencias y cambios a lo largo del tiempo</p>
                         <button>Generar Gráfico</button>
                     </div>
 
-                    <div class="tool-card" onclick="suggestVisualizations()">
+                    <div class="tool-card" onclick="openChartModal('bar')">
                         <h4>Gráfico de Barras</h4>
                         <p>Compara categorías y frecuencias entre grupos</p>
                         <button>Generar Gráfico</button>
                     </div>
 
-                    <div class="tool-card" onclick="suggestVisualizations()">
+                    <div class="tool-card" onclick="openChartModal('histogram')">
                         <h4>Histograma</h4>
                         <p>Analiza la distribución de variables numéricas</p>
                         <button>Generar Gráfico</button>
@@ -592,10 +707,52 @@
         </div>
     </div>
 
+    <!-- MODAL PARA GRÁFICOS CHART.JS -->
+    <div class="chart-modal" id="chart-modal">
+        <div class="chart-modal-content">
+            <h3>Generar Gráfico Interactivo</h3>
+            
+            <div class="chart-controls">
+                <div class="chart-control-row">
+                    <div class="chart-control-group">
+                        <label for="chart-type">Tipo de Gráfico:</label>
+                        <select id="chart-type">
+                            <option value="line">Gráfico de Líneas</option>
+                            <option value="bar">Gráfico de Barras</option>
+                            <option value="histogram">Histograma</option>
+                        </select>
+                    </div>
+                    
+                    <div class="chart-control-group">
+                        <label for="x-column">Columna X:</label>
+                        <select id="x-column"></select>
+                    </div>
+                    
+                    <div class="chart-control-group">
+                        <label for="y-column">Columna Y (opcional):</label>
+                        <select id="y-column">
+                            <option value="">-- Ninguna --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container-full">
+                <canvas id="main-chart-canvas"></canvas>
+            </div>
+
+            <div class="chart-buttons">
+                <button class="btn-secondary" onclick="closeChartModal()">Cerrar</button>
+                <button class="btn-primary" onclick="generateChart()">Generar Gráfico</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Variables globales
         let currentDataset = null;
         let currentChart = null;
+        let datasetColumns = [];
 
         // Elementos DOM
         const chatHistory = document.getElementById('chat-history');
@@ -645,6 +802,13 @@
             });
 
             fileInput.addEventListener('change', handleFileUpload);
+
+            // Cerrar modal al hacer clic fuera
+            document.getElementById('chart-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeChartModal();
+                }
+            });
         });
 
         // Funciones del chat
@@ -847,6 +1011,116 @@
             }
         }
 
+        // FUNCIONES CHART.JS - NUEVAS
+        function openChartModal(chartType) {
+            if (!currentDataset) {
+                addMessage('Por favor, carga un dataset CSV primero usando el panel izquierdo.', 'assistant');
+                return;
+            }
+
+            document.getElementById('chart-type').value = chartType;
+            document.getElementById('chart-modal').style.display = 'flex';
+            
+            loadDatasetColumns();
+        }
+
+        function closeChartModal() {
+            document.getElementById('chart-modal').style.display = 'none';
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+        }
+
+        async function loadDatasetColumns() {
+            try {
+                const response = await fetch('/api/dataset/columns?user_id=default');
+                const data = await response.json();
+
+                if (data.success) {
+                    datasetColumns = data.columns;
+                    const numericColumns = data.numeric_columns || [];
+                    
+                    // Llenar select de columna X
+                    const xSelect = document.getElementById('x-column');
+                    xSelect.innerHTML = '';
+                    datasetColumns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        xSelect.appendChild(option);
+                    });
+
+                    // Llenar select de columna Y
+                    const ySelect = document.getElementById('y-column');
+                    ySelect.innerHTML = '<option value="">-- Ninguna --</option>';
+                    numericColumns.forEach(col => {
+                        const option = document.createElement('option');
+                        option.value = col;
+                        option.textContent = col;
+                        ySelect.appendChild(option);
+                    });
+
+                    // Generar gráfico inicial con valores por defecto
+                    setTimeout(generateChart, 500);
+                }
+            } catch (error) {
+                console.error('Error loading columns:', error);
+                addMessage('Error al cargar las columnas del dataset', 'assistant');
+            }
+        }
+
+        async function generateChart() {
+            const chartType = document.getElementById('chart-type').value;
+            const xColumn = document.getElementById('x-column').value;
+            const yColumn = document.getElementById('y-column').value;
+
+            if (!xColumn) {
+                alert('Por favor selecciona una columna X');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/chartjs/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: 'default',
+                        chart_type: chartType,
+                        x_column: xColumn,
+                        y_column: yColumn || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const ctx = document.getElementById('main-chart-canvas').getContext('2d');
+                    
+                    // Destruir gráfico anterior si existe
+                    if (currentChart) {
+                        currentChart.destroy();
+                    }
+
+                    // Crear nuevo gráfico
+                    currentChart = new Chart(ctx, {
+                        type: data.chart_type === 'histogram' ? 'bar' : data.chart_type,
+                        data: data.data,
+                        options: data.options
+                    });
+
+                    addMessage(`✅ Gráfico de ${chartType} generado exitosamente para ${xColumn}${yColumn ? ` y ${yColumn}` : ''}`, 'system');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error generating chart:', error);
+                addMessage(`❌ Error al generar el gráfico: ${error.message}`, 'assistant');
+            }
+        }
+
         async function suggestVisualizations() {
             if (!currentDataset) {
                 addMessage('Por favor, carga un dataset CSV primero para generar visualizaciones.', 'assistant');
@@ -880,9 +1154,41 @@
             }
         }
 
-        function generateReport() {
-            addMessage('📄 La generación de reportes PDF estará disponible en la próxima actualización.', 'assistant');
+        async function generateReport() {
+    if (!currentDataset) {
+        addMessage('Por favor, carga un dataset CSV primero.', 'assistant');
+        return;
+    }
+
+    showTypingIndicator();
+    
+    try {
+        const response = await fetch('/api/generate_report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: 'default'
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Abrir el reporte en nueva pestaña
+            const newWindow = window.open();
+            newWindow.document.write(data.report_html);
+            addMessage('📄 Reporte generado exitosamente. Se abrió en una nueva ventana.', 'assistant');
+        } else {
+            addMessage(`❌ Error al generar reporte: ${data.error}`, 'assistant');
         }
+    } catch (error) {
+        addMessage('Error de conexión al generar el reporte', 'assistant');
+    } finally {
+        hideTypingIndicator();
+    }
+}
 
         // Utilidad para limpiar el chat
         function clearChat() {
@@ -892,3 +1198,5 @@
     </script>
 </body>
 </html>
+
+   
