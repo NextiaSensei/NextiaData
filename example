@@ -1,4 +1,11 @@
-GEMINI_API_KEY=AIzaSyArn3TOT6P29eelnRo2TVYCB4bnAhtdISE
-NEXTIA_HOST=127.0.0.1
-NEXTIA_PORT=5000
-NEXTIA_DEBUG=True
+# Google Gemini AI API Key
+# Obtén tu clave en: https://aistudio.google.com/
+GEMINI_API_KEY=
+NEXTIA_HOST=
+NEXTIA_PORT=
+NEXTIA_DEBUG=
+
+# Configuración opcional
+UPLOAD_FOLDER=
+MAX_FILE_SIZE=
+
