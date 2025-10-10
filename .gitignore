@@ -1,38 +1,33 @@
-# Entornos virtuales
-venv/
-env/
-.venv/
 
-# Archivos de entorno
+# Variables de entorno
 .env
-*.env
+*.env.local
+*.env.production
+
+# API Keys y secrets
+*_key.txt
+*_secret.txt
+config_secret.py
+
+# Bases de datos locales
+*.db
+*.sqlite
+*.db-journal
+
+# Archivos temporales
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+
+# Logs
+*.log
+logs/
 
 # Uploads de usuarios
 uploads/
-*.csv
-*.xlsx
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+!uploads/.gitkeep
 
 # IDE
 .vscode/

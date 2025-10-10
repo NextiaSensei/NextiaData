@@ -1,0 +1,8 @@
+date,product,sales,marketing_spend,region,customers_acquired
+2024-01-01,Product_A,15000,2000,Norte,15
+2024-01-02,Product_B,12000,1500,Sur,12
+2024-01-03,Product_A,18000,2200,Norte,18
+2024-01-04,Product_C,9000,1000,Este,9
+2024-01-05,Product_B,14000,1800,Oeste,14
+2024-01-06,Product_A,16000,2100,Norte,16
+2024-01-07,Product_C,11000,1200,Este,11
