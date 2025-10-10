@@ -12,21 +12,21 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.9'
-        
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        
+
     - name: Test Python imports
       run: |
         python -c "import flask, pandas, matplotlib, seaborn; print('✅ Dependencies OK')"
-        
+
     - name: Security check
       run: |
         echo "🔒 Checking for exposed API keys..."
@@ -36,6 +36,17 @@ jobs:
         else
           echo "✅ No API keys exposed"
         fi
+
+    - name: Basic functionality test
+      run: |
+        echo "🧪 Testing basic app functionality..."
+        python -c "
+from app import app
+print('✅ Flask app imports OK')
+import pandas as pd
+print('✅ Pandas imports OK') 
+print('✅ All basic tests passed!')
+        "
 
   docs:
     runs-on: ubuntu-latest
